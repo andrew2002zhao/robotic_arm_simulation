@@ -23,6 +23,18 @@ def generate_launch_description():
     xacro.process_doc(doc)
     params = {'robot_description': doc.toxml()}
 
+    nodes = []
+    
+
+
+    # joint_state_publisher = Node(
+    #     package= "joint_state_publisher_gui",
+    #     executable= "joint_state_publisher_gui",
+    #     output='screen',
+    #     name='joint_state_publisher_node',
+    #     parameters=[{'use_sim_time': True}]
+    # )
+
     # # define robot state publisher node
     robot_state_publisher = Node(
         package= "robot_state_publisher",
@@ -45,7 +57,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         # the nodes to start
-        rviz, 
+       
+        rviz,
         robot_state_publisher
+        
     ])
 

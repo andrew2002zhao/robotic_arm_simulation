@@ -5,6 +5,7 @@
 <xacro:property name="robot_stand_width" value="1"/>
 <xacro:property name="robot_stand_length" value="1"/>
 <xacro:property name="robot_stand_height" value="1.5"/>
+
 <xacro:macro name="robot_stand" params="parent_joint">
     <link name="robot_stand_link">
         <visual>
@@ -27,10 +28,40 @@
     </joint>
 </xacro:macro>
 
+<xacro:macro name="standard_joint" params="joint_name parent_link radius length">
+    <link name="${joint_name}_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry> 
+                <cylinder radius="${radius}" length="${length}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry> 
+                <cylinder radius="${radius}" length="${length}"/>
+            </geometry>
+        </collision>  
+    </link>
+    <joint name="${joint_name}_link_joint" type="revolute">
+        <xacro:if value="${joint_name == 'waist'}">
+            <origin xyz="0 0 ${robot_stand_height}" rpy="1.5707 0 0"/>
+            <axis xyz="0 0 1"/>
+        </xacro:if>
+        <xacro:unless value="${joint_name == 'waist'}">
+            <origin xyz="0 0 ${robot_stand_height}" rpy="1.5707 0 0"/>
+            <axis xyz="1 0 0"/>
+        </xacro:unless>
+        <limit effort="30" velocity="1.0" lower="-0.5" upper="0.5" />
+        <parent link="${parent_link}"/>
+        <child link="${joint_name}_link"/>
+    </joint>
+</xacro:macro>
+
 
     <link name="world"/>
-   
 
     <xacro:robot_stand parent_joint="world"/>
+    <xacro:standard_joint joint_name="waist" parent_link="robot_stand_link" radius="0.2" length="0.2"/>
 
 </robot>
