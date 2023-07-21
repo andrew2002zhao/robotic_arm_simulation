@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_arm_description">
+
+<xacro:property name="robot_stand_width" value="1"/>
+<xacro:property name="robot_stand_length" value="1"/>
+<xacro:property name="robot_stand_height" value="1.5"/>
+<xacro:macro name="robot_stand" params="parent_joint">
+    <link name="robot_stand_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${robot_stand_width} ${robot_stand_length} ${robot_stand_height}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${robot_stand_width} ${robot_stand_length} ${robot_stand_height}"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="robot_stand_joint" type="fixed">
+        <origin xyz="0 0 ${robot_stand_height / 2}" rpy="0 0 0"/>
+        <parent link="${parent_joint}"/>
+        <child link="robot_stand_link"/>
+    </joint>
+</xacro:macro>
+
+
+    <link name="world"/>
+   
+
+    <xacro:robot_stand parent_joint="world"/>
+
+</robot>
