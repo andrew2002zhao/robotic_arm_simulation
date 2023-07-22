@@ -2,9 +2,12 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_arm_description">
 
-<xacro:property name="robot_stand_width" value="1"/>
-<xacro:property name="robot_stand_length" value="1"/>
-<xacro:property name="robot_stand_height" value="1.5"/>
+<xacro:property name="robot_stand_width" value="0.2"/>
+<xacro:property name="robot_stand_length" value="0.2"/>
+<xacro:property name="robot_stand_height" value="0.5"/>
+
+<xacro:property name="appendage_length" value="0.05"/>
+<xacro:property name="appendage_width" value="0.05"/>
 
 <xacro:macro name="robot_stand" params="parent_joint">
     <link name="robot_stand_link">
@@ -28,7 +31,7 @@
     </joint>
 </xacro:macro>
 
-<xacro:macro name="standard_joint" params="joint_name parent_link radius length">
+<xacro:macro name="standard_joint" params="joint_name parent_link radius length joint_height joint_pitch joint_roll joint_yaw">
     <link name="${joint_name}_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -44,24 +47,56 @@
         </collision>  
     </link>
     <joint name="${joint_name}_link_joint" type="revolute">
-        <xacro:if value="${joint_name == 'waist'}">
-            <origin xyz="0 0 ${robot_stand_height}" rpy="1.5707 0 0"/>
-            <axis xyz="0 0 1"/>
-        </xacro:if>
-        <xacro:unless value="${joint_name == 'waist'}">
-            <origin xyz="0 0 ${robot_stand_height}" rpy="1.5707 0 0"/>
-            <axis xyz="1 0 0"/>
-        </xacro:unless>
-        <limit effort="30" velocity="1.0" lower="-0.5" upper="0.5" />
+        
+        <origin xyz="0 0 ${joint_height}" rpy="${joint_pitch} ${joint_roll} ${joint_yaw}"/>
+        <axis xyz="0 0 1"/>
+        
+        <limit effort="30" velocity="1.0" lower="-0.778" upper="0.778" />
         <parent link="${parent_link}"/>
         <child link="${joint_name}_link"/>
     </joint>
+</xacro:macro>
+
+<xacro:macro name="standard_appendage" params="parent_link length appendage_roll appendage_pitch appendage_yaw">
+    <link name="${length}_link">
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${appendage_width} ${appendage_length} ${length}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${appendage_width} ${appendage_length} ${length}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="${length}_link_joint" type="fixed">
+        <xacro:unless value="${length == '0.1'}">
+            <origin xyz="0 ${length / 2} 0" rpy="${appendage_roll} ${appendage_pitch} ${appendage_yaw}"/>
+        </xacro:unless>
+        <xacro:if value="${length == '0.1'}">
+            <origin xyz="0 0 0" rpy="${appendage_roll} ${appendage_pitch} ${appendage_yaw}"/>
+        </xacro:if>
+        <parent link="${parent_link}"/>
+        <child link="${length}_link"/>
+    </joint>
+
+    
+
 </xacro:macro>
 
 
     <link name="world"/>
 
     <xacro:robot_stand parent_joint="world"/>
-    <xacro:standard_joint joint_name="waist" parent_link="robot_stand_link" radius="0.2" length="0.2"/>
-
+    <xacro:standard_joint joint_name="waist" parent_link="robot_stand_link" radius="0.1" length="0.1" joint_height="${robot_stand_height / 2}" joint_pitch="0" joint_roll="0" joint_yaw="0"/>
+    <xacro:standard_joint joint_name="shoulder" parent_link="waist_link" radius="0.05" length="0.1" joint_height="${0.1}" joint_pitch="1.5707" joint_roll="0" joint_yaw="0"/>
+    <xacro:standard_appendage parent_link="shoulder_link" length="0.4" appendage_roll="0" appendage_pitch="1.5707" appendage_yaw="1.5707"/>
+    <xacro:standard_joint joint_name="elbow" parent_link="0.4_link" radius="0.05" length="0.1" joint_height="${0.2}" joint_pitch="1.5707" joint_roll="0" joint_yaw="-1.5707"/>
+    <xacro:standard_appendage parent_link="elbow_link" length="0.3" appendage_roll="0" appendage_pitch="1.5707" appendage_yaw="1.5707"/>
+    <xacro:standard_joint joint_name="wrist" parent_link="0.3_link" radius="0.05" length="0.1" joint_height="${0.15}" joint_pitch="1.5707" joint_roll="0" joint_yaw="-1.5707"/>
+    <xacro:standard_appendage parent_link="wrist_link" length="0.1" appendage_roll="0" appendage_pitch="0" appendage_yaw="0"/>
 </robot>
